@@ -1,0 +1,25 @@
+# Production Environment Values
+# Full resources for production workloads
+
+image:
+  repository: scalecraft/dagctl-dbt-operator
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2  # HA setup
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+leaderElection:
+  enabled: true
+
+# Production-grade settings
+nodeSelector: {}
+tolerations: []
+affinity: {}

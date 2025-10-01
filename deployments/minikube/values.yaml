@@ -1,0 +1,24 @@
+# Minikube / Local Development Values
+# Minimal resources for local testing
+
+image:
+  repository: scalecraft/dagctl-dbt-operator
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Faster sync for local dev
+leaderElection:
+  enabled: true
+  leaseDuration: 15s
+  renewDeadline: 10s
+  retryPeriod: 2s
