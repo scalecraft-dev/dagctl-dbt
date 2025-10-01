@@ -231,14 +231,36 @@ func (r *DbtRunReconciler) createJob(ctx context.Context, run *orchestrationv1al
 		})
 	}
 
+	// Create labels with run metadata
+	labels := map[string]string{
+		"app.kubernetes.io/name":               "dagctl-dbt",
+		"app.kubernetes.io/component":          "dbt-run",
+		"app.kubernetes.io/managed-by":         "dagctl-dbt-operator",
+		"orchestration.scalecraft.io/project":  project.Name,
+		"orchestration.scalecraft.io/run":      run.Name,
+		"orchestration.scalecraft.io/run-type": string(run.Spec.Type),
+	}
+
+	// Add command as annotation (labels have character limits)
+	annotations := map[string]string{
+		"orchestration.scalecraft.io/dbt-command": fmt.Sprintf("dbt %v", commands),
+		"orchestration.scalecraft.io/created-at":  metav1.Now().Format("2006-01-02T15:04:05Z"),
+	}
+
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-%s", run.Name, "job"),
-			Namespace: run.Namespace,
+			Name:        fmt.Sprintf("%s-%s", run.Name, "job"),
+			Namespace:   run.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Spec: batchv1.JobSpec{
 			TTLSecondsAfterFinished: run.Spec.TTLSecondsAfterFinished,
 			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels:      labels,
+					Annotations: annotations,
+				},
 				Spec: corev1.PodSpec{
 					InitContainers:     initContainers,
 					Containers:         []corev1.Container{container},
