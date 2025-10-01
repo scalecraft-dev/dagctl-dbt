@@ -1,0 +1,28 @@
+apiVersion: orchestration.scalecraft.io/v1alpha1
+kind: DbtProject
+metadata:
+  name: analytics-demo
+  namespace: default
+spec:
+  git:
+    repository: https://github.com/scalecraft-dev/dagctl-dbt-demo.git
+    ref: main
+  
+  schedule: "0 0 */6 * * *"  # Every 6 hours for production
+  
+  image: scalecraft/dagctl-dbt-demo:latest
+  
+  profilesConfigMap: dbt-profiles
+  
+  commands:
+    - run
+    - --target
+    - prod
+  
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
