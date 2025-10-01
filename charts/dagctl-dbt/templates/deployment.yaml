@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dagctl-dbt.fullname" . }}-controller
+  labels:
+    {{- include "dagctl-dbt.labels" . | nindent 4 }}
+    control-plane: controller-manager
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "dagctl-dbt.selectorLabels" . | nindent 6 }}
+      control-plane: controller-manager
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "dagctl-dbt.selectorLabels" . | nindent 8 }}
+        control-plane: controller-manager
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "dagctl-dbt.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: manager
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - /manager
+        args:
+        {{- if .Values.metricsServer.enabled }}
+        - --metrics-bind-address=:{{ .Values.metricsServer.port }}
+        {{- end }}
+        {{- if .Values.healthProbe.port }}
+        - --health-probe-bind-address=:{{ .Values.healthProbe.port }}
+        {{- end }}
+        {{- if .Values.leaderElection.enabled }}
+        - --leader-elect
+        {{- end }}
+        ports:
+        {{- if .Values.metricsServer.enabled }}
+        - name: metrics
+          containerPort: {{ .Values.metricsServer.port }}
+          protocol: TCP
+        {{- end }}
+        {{- if .Values.healthProbe.port }}
+        - name: health
+          containerPort: {{ .Values.healthProbe.port }}
+          protocol: TCP
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 10

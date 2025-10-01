@@ -1,0 +1,32 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+The dagctl-dbt operator has been deployed to namespace: {{ .Release.Namespace }}
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }} -n {{ .Release.Namespace }}
+  $ helm get all {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+To check the operator is running:
+
+  $ kubectl get deployment -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "dagctl-dbt.name" . }}
+
+To create your first dbt project, create a DbtProject resource:
+
+  apiVersion: orchestration.scalecraft.io/v1alpha1
+  kind: DbtProject
+  metadata:
+    name: my-dbt-project
+  spec:
+    git:
+      repository: https://github.com/your-org/your-dbt-repo.git
+      ref: main
+    image: scalecraft/dagctl-dbt-demo:latest
+    schedule: "0 */6 * * * *"  # Every 6 hours
+    commands:
+      - run
+
+For more examples, visit:
+  https://github.com/scalecraft-dev/dagctl-dbt/tree/main/config/samples

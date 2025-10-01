@@ -1,0 +1,18 @@
+apiVersion: v2
+name: dagctl-dbt
+description: A Kubernetes operator for orchestrating dbt projects
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - dbt
+  - data
+  - orchestration
+  - kubernetes
+  - gitops
+home: https://github.com/scalecraft-dev/dagctl-dbt
+sources:
+  - https://github.com/scalecraft-dev/dagctl-dbt
+maintainers:
+  - name: ScaleCraft
+    url: https://scalecraft.dev

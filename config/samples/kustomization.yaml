@@ -1,0 +1,6 @@
+## Append samples of your project ##
+resources:
+- orchestration_v1alpha1_dbtproject.yaml
+- orchestration_v1alpha1_dbtrun.yaml
+- orchestration_v1alpha1_sqlmeshproject.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

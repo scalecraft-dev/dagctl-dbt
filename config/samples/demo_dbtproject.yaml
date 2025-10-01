@@ -1,0 +1,37 @@
+apiVersion: orchestration.scalecraft.io/v1alpha1
+kind: DbtProject
+metadata:
+  name: analytics-demo
+  namespace: default
+spec:
+  git:
+    repository: https://github.com/scalecraft-dev/dagctl-dbt-demo.git
+    ref: main
+    path: /
+  
+  # Run every 5 minutes (6-field cron: seconds, minutes, hours, day, month, weekday)
+  schedule: "0 */5 * * * *"
+  
+  image: scalecraft/dagctl-dbt-demo:latest
+  
+  profilesConfigMap: dbt-profiles
+  
+  commands:
+    - run
+  
+  env:
+    - name: DBT_PROFILES_DIR
+      value: /root/.dbt
+  
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  
+  suspend: false

@@ -1,0 +1,12 @@
+apiVersion: orchestration.scalecraft.io/v1alpha1
+kind: DbtRun
+metadata:
+  name: demo-manual-run
+  namespace: default
+spec:
+  projectRef:
+    name: analytics-demo
+  type: Manual
+  commands:
+    - run
+  ttlSecondsAfterFinished: 300
